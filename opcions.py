@@ -12,6 +12,7 @@ SECCIONS = {
 	9: 'Recomendacions'
 }
 CACHE = '../cache'
+SAIDA = 'asdf.htm'
 
 # TODO: Configurable
 CODIGO = "614G01"

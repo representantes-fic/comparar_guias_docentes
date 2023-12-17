@@ -5,8 +5,6 @@ import logging
 
 import opcions
 
-# FUNCIÓNS #
-
 
 def xerar_url_materias(codigo: str, materia: bool, ano: str = None, idioma: str = None) -> str:
 	# ano = 20XX_YY

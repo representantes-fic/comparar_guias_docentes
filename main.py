@@ -1,10 +1,24 @@
 import logging
-import difflib
 import re
 
 import descargar
 import opcions
 import comparar
+
+
+def color(linea: str) -> str:
+	if len(linea) <= 0 or linea[0] not in ('-', '+'):
+		return linea
+	saida = '<span '
+	if linea[0] == '-':
+		saida += 'class="remove">'
+	elif linea[0] == '+':
+		saida += 'class="add">'
+	else:
+		saida += '>'
+	nova_linea = re.sub(r'\\(.)', r'\1', linea[1:])
+	saida += f'{nova_linea}</span>'
+	return saida
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(funcName)s:%(message)s')
 
@@ -22,23 +36,46 @@ contidos_B = {
 	for materia in lista_materias
 }
 
-differ = difflib.HtmlDiff()
+logging.info('Xerando a páxina web')
 
-buscar_ano_A = re.compile(f'.*{opcions.ANO_A}.*')
-buscar_ano_B = re.compile(f'.*{opcions.ANO_B}.*')
+paxina = """<!DOCTYPE html><html><head><style>
+table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+.remove {
+	color: red;
+}
+.add {
+	color: green;
+}</style></head><body>"""
 
 for materia in lista_materias:
-	saida = f'		{materia}:\n'
-	amosar = False
+	logging.info(f'Procesando {materia}')
+	engadir_materia = False
+	texto_materia = f'<h1 id="{materia}">{materia}</h1>'
 	for i in range(1, 10):
-		texto_A = [line for line in contidos_A[materia][opcions.SECCIONS[i]].splitlines(keepends=True) if buscar_ano_A.search(line) is None]
-		texto_B = [line for line in contidos_B[materia][opcions.SECCIONS[i]].splitlines(keepends=True) if buscar_ano_B.search(line) is None]
-		delta = differ.make_file(fromlines=texto_A, tolines=texto_B, fromdesc=opcions.ANO_A, todesc=opcions.ANO_B)
-		with open(f'../out/{materia}.htm', 'w') as file:
-			file.write(delta)
-		#cambios = [cambio for cambio in delta if cambio[0] in ('?', '+', '-')]
-		#if len(cambios) > 0:
-		#	saida += f'{SECCIONS[i]}\n{cambios}'
-		#	amosar = True
-	if amosar:
-		print(saida)
+		engadir_seccion = False
+		texto_A = comparar.eliminar_ano(comparar.convertir_html_texto(contidos_A[materia][opcions.SECCIONS[i]]), opcions.ANO_A)
+		texto_B = comparar.eliminar_ano(comparar.convertir_html_texto(contidos_B[materia][opcions.SECCIONS[i]]), opcions.ANO_B)
+		delta = comparar.comparar_a_lista(texto_A, texto_B)
+		texto_seccion = f'<h2 id="{materia}_{opcions.SECCIONS[i]}">{opcions.SECCIONS[i]}</h2><table><tr><th>{opcions.ANO_A}</th><th>{opcions.ANO_B}</th></tr>'
+		delta_agrupado = comparar.agrupar_comparacion(delta)
+		for grupo in delta_agrupado:
+			for i in range(len(grupo[0])):
+				engadir_materia = True
+				engadir_seccion = True
+				texto_seccion += f'<tr><td>{color(grupo[0][i])}</td><td>{color(grupo[1][i])}</td></tr>'
+		texto_seccion += '</table>'
+		if engadir_seccion:
+			texto_materia += texto_seccion
+	if engadir_materia:
+		paxina += f'{texto_materia}'
+
+paxina += '</body></html>'
+
+logging.info('Gardando a páxina web')
+
+with open(opcions.SAIDA, 'w') as f:
+	f.write(paxina)
