@@ -1,3 +1,5 @@
+import logging
+
 # CONSTANTES #
 
 SECCIONS = {
@@ -11,11 +13,7 @@ SECCIONS = {
 	8: 'Fontes',
 	9: 'Recomendacions'
 }
-CACHE = '../cache'
-SAIDA = 'asdf.htm'
+CACHE = 'cache'
+SAIDA = 'out'
 
-# TODO: Configurable
-CODIGO = "614G01"
-ANO_A = "2023_24"
-ANO_B = "2022_23"
-IDIOMA = "cat"
+logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(funcName)s:%(message)s')
