@@ -29,6 +29,6 @@ O ficheiro de saída estará en formato HTML. Se non se engade un ficheiro impri
 
 ### Servidor
 
-`./serve.py [ip]:[porto]`
+`./serve.py [ip] [porto]`
 
-Precisan de ter creados os cartafoles `cache` e `out`.
+Precisan de ter creados os cartafoles `cache` e `out`, ou os que se definan en opcions.py.

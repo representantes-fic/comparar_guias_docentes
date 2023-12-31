@@ -15,5 +15,6 @@ SECCIONS = {
 }
 CACHE = 'cache'
 SAIDA = 'out'
+INDICE = 'www/index.html'
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(funcName)s:%(message)s')

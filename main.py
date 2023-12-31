@@ -52,7 +52,7 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 	}
 	.add {
 		color: green;
-	}</style></head><body>"""
+	}</style><meta charset="utf-8"></head><body>"""
 
 	for materia in lista_materias:
 		logging.info(f'Procesando {materia}')

@@ -35,13 +35,13 @@ def descargar_paxina(url: str) -> str:
 
 def descargar_paxina_materia(cod_materia: str, seccion: int, ano: str, idioma: str):
 	# Devolve a sección da materia, mirando en caché se existe
-	ficheiro = f'{opcions.CACHE}/{ano}A{cod_materia}S{seccion}'
+	ficheiro = f'{opcions.CACHE}/{ano}A{cod_materia}S{seccion}I{idioma}'
 	try:
 		with open(ficheiro, 'r') as file:
-			logging.info(f'{ano}A{cod_materia}S{seccion} presente na caché')
+			logging.info(f'{ano}A{cod_materia}S{seccion}I{idioma} presente na caché')
 			pax = file.read()
 	except FileNotFoundError:
-		logging.info(f'{ano}A{cod_materia}S{seccion} non dispoñible. Descargando')
+		logging.info(f'{ano}A{cod_materia}S{seccion}I{idioma} non dispoñible. Descargando')
 		with open(ficheiro, 'w') as file:
 			pax = descargar_paxina(
 				xerar_url_materias(cod_materia, materia=True, ano=ano, idioma=idioma) + f'&fitxa_apartat={seccion}')
