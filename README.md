@@ -6,9 +6,9 @@ Programa para comparar guías docentes de distintos anos
 
 Dependencias:
 
-* html2text (2020.1.16)
+* html2text (probado con 2020.1.16)
 * bs4 (probado con 4.12.2/bs4==0.0.1)
-* requests (2.31.0)
+* requests (probado con 2.31.0)
 
 ## Uso
 

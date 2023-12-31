@@ -1,0 +1,12 @@
+version: '3'
+services:
+    comparar_guias_docentes:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - ./cache:/comparar_guias_docentes/cache
+            - ./out:/comparar_guias_docentes/out
+        command: ./serve.py 0.0.0.0 80
+        ports:
+            - 8080:80

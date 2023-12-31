@@ -55,8 +55,9 @@ class ServidorIPv6(HTTPServer):
 if __name__ == '__main__':
 	try:
 		ops = (sys.argv[1], int(sys.argv[2]))
+		logging.info(f'Executando servidor en {ops[0]}:{ops[1]}')
 		httpd = HTTPServer(ops, ServidorHTTP) \
-			if type(ipaddress.ip_address(sys.argv[1])) != ipaddress.IPv6Address \
+			if type(ipaddress.ip_address(ops[0])) != ipaddress.IPv6Address \
 			else ServidorIPv6(ops, ServidorHTTP)
 		httpd.serve_forever()
 	except IndexError:
