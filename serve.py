@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import opcions
 import main
 import sys
@@ -48,7 +48,7 @@ class ServidorHTTP(BaseHTTPRequestHandler):
 			logging.error(e)
 
 
-class ServidorIPv6(HTTPServer):
+class ServidorIPv6(ThreadingHTTPServer):
 	address_family = socket.AF_INET6
 
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 	try:
 		ops = (sys.argv[1], int(sys.argv[2]))
 		logging.info(f'Executando servidor en {ops[0]}:{ops[1]}')
-		httpd = HTTPServer(ops, ServidorHTTP) \
+		httpd = ThreadingHTTPServer(ops, ServidorHTTP) \
 			if type(ipaddress.ip_address(ops[0])) != ipaddress.IPv6Address \
 			else ServidorIPv6(ops, ServidorHTTP)
 		httpd.serve_forever()
