@@ -6,14 +6,16 @@ import logging
 import opcions
 
 
-def xerar_url_materias(codigo: str, materia: bool, ano: str = None, idioma: str = None) -> str:
+def xerar_url_materias(
+	codigo: str, materia: bool, ano: str = None, idioma: str = None) -> str:
 	# ano = 20XX_YY
 	# idioma = eng, cast, cat
 	#   cat é galego
 	# materia indica se se vai descargar a páxina da materia (True) ou a listaxe
 	#  de materias (False)
 	centro = re.compile('([0-9]+)G.*').search(codigo).group(1)
-	cod_materia = re.compile('([0-9]+G[0-9][0-9]).*').search(codigo).group(1) if materia else codigo
+	cod_materia = re.compile('([0-9]+G[0-9][0-9]).*')\
+		.search(codigo).group(1) if materia else codigo
 	url = f'https://guiadocente.udc.es/guia_docent/index.php?centre={centro}&ensenyament={cod_materia}'
 	if ano is not None:
 		url += f'&any_academic={ano}'
@@ -33,7 +35,8 @@ def descargar_paxina(url: str) -> str:
 	return r.text
 
 
-def descargar_paxina_materia(cod_materia: str, seccion: int, ano: str, idioma: str):
+def descargar_paxina_materia(
+	cod_materia: str, seccion: int, ano: str, idioma: str):
 	# Devolve a sección da materia, mirando en caché se existe
 	ficheiro = f'{opcions.CACHE}/{ano}A{cod_materia}S{seccion}I{idioma}'
 	try:

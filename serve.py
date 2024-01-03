@@ -37,7 +37,8 @@ def obter_paxina(materia: str, ano_a: str, ano_b: str, idioma: str):
 			with mutex:
 				descargas_en_proceso.remove(ficheiro)
 		else:
-			logging.info(f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, agardando a que descargue')
+			logging.info(
+				f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, agardando a descarga')
 			while ficheiro in descargas_en_proceso:
 				pass
 			with open(ficheiro, 'r') as saida:
@@ -60,7 +61,8 @@ class ServidorHTTP(BaseHTTPRequestHandler):
 				with open('www/favicon.png', 'rb') as icona:
 					self.send_response(200)
 					self.send_header('Content-Type', 'image/png')
-					self.send_header('Content-Length', str(os.path.getsize('www/favicon.png')))
+					self.send_header(
+						'Content-Length', str(os.path.getsize('www/favicon.png')))
 					self.end_headers()
 					self.wfile.write(icona.read())
 			else:
