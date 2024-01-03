@@ -1,4 +1,5 @@
 import logging
+import sys
 
 # CONSTANTES #
 
@@ -17,4 +18,10 @@ CACHE = 'cache'
 SAIDA = 'out'
 INDICE = 'www/index.html'
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(funcName)s:%(message)s')
+# REXISTROS #
+
+logging.basicConfig(
+	filename='info.log',
+	level=logging.INFO,
+	format='%(levelname)s:%(funcName)s:%(message)s')
+logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
