@@ -7,6 +7,7 @@ services:
         volumes:
             - ./cache:/comparar_guias_docentes/cache
             - ./out:/comparar_guias_docentes/out
+            - ./info.log:/comparar_guias_docentes/info.log
             #- .:/comparar_guias_docentes
         command: ./serve.py 0.0.0.0 80
         ports:
