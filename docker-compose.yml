@@ -5,9 +5,9 @@ services:
             context: .
             dockerfile: Dockerfile
         volumes:
-            #- ./cache:/comparar_guias_docentes/cache
-            #- ./out:/comparar_guias_docentes/out
-            - .:/comparar_guias_docentes
+            - ./cache:/comparar_guias_docentes/cache
+            - ./out:/comparar_guias_docentes/out
+            #- .:/comparar_guias_docentes
         command: ./serve.py 0.0.0.0 80
         ports:
             - 9080:80
