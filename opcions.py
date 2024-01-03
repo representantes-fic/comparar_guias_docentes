@@ -21,7 +21,7 @@ INDICE = 'www/index.html'
 # REXISTROS #
 
 logging.basicConfig(
-	filename='info.log',
+	filename='logs/info.log',
 	level=logging.INFO,
 	format='%(levelname)s:%(funcName)s:%(message)s')
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
