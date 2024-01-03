@@ -26,7 +26,7 @@ def color(linea: str) -> str:
 
 def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 	logging.info('Descargando listaxe de materias')
-	lista_materias = descargar.lista_materias(codigo, ano_a, idioma)
+	lista_materias, nomes = descargar.lista_materias(codigo, ano_a, idioma)
 
 	logging.info(f'Descargando materias para o ano {ano_a}')
 	contidos_A = {
@@ -41,23 +41,32 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 
 	logging.info('Xerando a páxina web')
 
-	paxina = """<!DOCTYPE html><html><head><style>
-	table, th, td {
-		border: 1px solid black;
-		border-collapse: collapse;
-	}
+	paxina = """
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			table, th, td {
+				border: 1px solid black;
+				border-collapse: collapse;
+			}
 
-	.remove {
-		color: red;
-	}
-	.add {
-		color: green;
-	}</style><meta charset="utf-8"><link rel="icon" href="favicon.png" type="image/png"></head><body>"""
+			.remove {
+				color: red;
+			}
+			.add {
+				color: green;
+			}
+		</style>
+		<meta charset="utf-8">
+		<link rel="icon" href="favicon.png" type="image/png">
+	</head>
+	<body>"""
 
 	for materia in lista_materias:
 		logging.info(f'Procesando {materia}')
 		engadir_materia = False
-		texto_materia = f'<h1 id="{materia}">{materia}</h1>'
+		texto_materia = f'<h1 id="{materia}">{materia}: {nomes[materia]}</h1>'
 		for i in range(1, 10):
 			engadir_seccion = False
 			texto_A = comparar.eliminar_ano(comparar.convertir_html_texto(contidos_A[materia][opcions.SECCIONS[i]]), ano_a)

@@ -64,4 +64,11 @@ def lista_materias(codigo_titulacion, ano, idioma):
 	parser = BeautifulSoup(pax, 'html.parser')
 	div = parser.find(id="contingut")
 	# Devolver listaxe de materias
-	return [materia.group(1) for materia in [regex.search(url.get('href')) for url in div.find_all('a')] if materia is not None]
+	materias = []
+	nomes = {}
+	for url in div.find_all('a'):
+		materia = regex.search(url.get('href'))
+		if materia is not None:
+			materias.append(materia.group(1))
+			nomes[materia.group(1)] = url.get_text()
+	return materias, nomes
