@@ -85,7 +85,7 @@ class ServidorHTTP(BaseHTTPRequestHandler):
 						self.wfile.write(str.encode(index.read()))
 				except Exception as e:
 					self.send_error(500)
-					logging.error(e)
+					logging.exception(e)
 		except BrokenPipeError:
 			pass
 
