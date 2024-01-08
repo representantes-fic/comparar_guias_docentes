@@ -55,6 +55,7 @@ class ServidorHTTP(BaseHTTPRequestHandler):
 										for peticion in parte_parametros.split('&')}
 
 	def do_GET(self):
+		logging.info(f'Request from {self.client_address}')
 		try:
 			if re.compile('favicon').search(self.path) is not None:
 				logging.info('Enviando icona')
@@ -104,3 +105,5 @@ if __name__ == '__main__':
 		httpd.serve_forever()
 	except IndexError:
 		print('Uso: ./serve.py [IP] [porto]')
+	except KeyboardInterrupt:
+		logging.warning('Saindo...')
