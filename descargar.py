@@ -62,6 +62,8 @@ def lista_materias(codigo_titulacion, ano, idioma):
 	# conteña o parametro assignatura
 	regex = re.compile("&assignatura=([0-9]+G[0-9]+)")
 	parser = BeautifulSoup(pax, 'html.parser')
+	# Nome da titulación
+	nome_titulacion = parser.find_all("a", class_='subapartat_actiu')[0]
 	div = parser.find(id="contingut")
 	# Devolver listaxe de materias
 	materias = []
@@ -71,4 +73,4 @@ def lista_materias(codigo_titulacion, ano, idioma):
 		if materia is not None:
 			materias.append(materia.group(1))
 			nomes[materia.group(1)] = url.get_text()
-	return materias, nomes
+	return materias, nomes, nome_titulacion.string

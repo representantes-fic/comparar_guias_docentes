@@ -21,7 +21,7 @@ def color(linea: str) -> BeautifulSoup:
 
 def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 	logging.info('Descargando listaxe de materias')
-	lista_materias, nomes = descargar.lista_materias(codigo, ano_a, idioma)
+	lista_materias, nomes, titulacion = descargar.lista_materias(codigo, ano_a, idioma)
 
 	logging.info(f'Descargando materias para o ano {ano_a}')
 	contidos_A = {
@@ -46,7 +46,7 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 	elif idioma == 'eng':
 		paxina.html['lang'] = 'en'
 	titulo = paxina.new_tag('title')
-	titulo.string = f'{codigo} de {ano_a} a {ano_b}, {idioma}'
+	titulo.string = f'{titulacion} de {ano_a} a {ano_b}, {idioma}'
 	paxina.html.head.append(titulo)
 
 	for materia in lista_materias:
