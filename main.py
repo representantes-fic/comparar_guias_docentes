@@ -1,27 +1,22 @@
 #! /usr/bin/env python
 
 import logging
-import re
 import sys
+from bs4 import BeautifulSoup
 
 import descargar
 import opcions
 import comparar
 
 
-def color(linea: str) -> str:
-	if len(linea) <= 0 or linea[0] not in ('-', '+'):
-		return linea
-	saida = '<span '
+def color(linea: str) -> BeautifulSoup:
+	nodo = BeautifulSoup().new_tag('pre')
+	nodo.string = linea
 	if linea[0] == '-':
-		saida += 'class="remove">'
+		nodo['class'] = 'remove'
 	elif linea[0] == '+':
-		saida += 'class="add">'
-	else:
-		saida += '>'
-	nova_linea = re.sub(r'\\(.)', r'\1', linea[1:])
-	saida += f'{nova_linea}</span>'
-	return saida
+		nodo['class'] = 'add'
+	return nodo
 
 
 def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
@@ -41,51 +36,75 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 
 	logging.info('Xerando a páxina web')
 
-	paxina = """
-<!DOCTYPE html>
-<html>
-	<head>
-		<style>
-			table, th, td {
-				border: 1px solid black;
-				border-collapse: collapse;
-			}
+	with open('www/modelo.html', 'r') as m:
+		paxina = BeautifulSoup(m.read(), 'html.parser')
 
-			.remove {
-				color: red;
-			}
-			.add {
-				color: green;
-			}
-		</style>
-		<meta charset="utf-8">
-		<link rel="icon" href="favicon.png" type="image/png">
-	</head>
-	<body>"""
+	if idioma == 'cat':
+		paxina.html['lang'] = 'gl'
+	elif idioma == 'spa':
+		paxina.html['lang'] = 'es'
+	elif idioma == 'eng':
+		paxina.html['lang'] = 'en'
+	titulo = paxina.new_tag('title')
+	titulo.string = f'{codigo} de {ano_a} a {ano_b}, {idioma}'
+	paxina.html.head.append(titulo)
 
 	for materia in lista_materias:
 		logging.info(f'Procesando {materia}')
+		# Se non hai seccións modificadas, non se engade a materia
 		engadir_materia = False
-		texto_materia = f'<h1 id="{materia}">{materia}: {nomes[materia]}</h1>'
-		for i in range(1, 10):
+		texto_materia = BeautifulSoup()
+		cabeceira = texto_materia.new_tag('h1', id=materia)
+		cabeceira.string = f'{materia}: {nomes[materia]}'
+		texto_materia.append(cabeceira)
+		for s in range(1, 10):
+			# Obtendo datos
+			# Se non hai cambios, non se engade a sección
 			engadir_seccion = False
-			texto_A = comparar.eliminar_ano(comparar.convertir_html_texto(contidos_A[materia][opcions.SECCIONS[i]]), ano_a)
-			texto_B = comparar.eliminar_ano(comparar.convertir_html_texto(contidos_B[materia][opcions.SECCIONS[i]]), ano_b)
+			texto_A = comparar.eliminar_ano(comparar.convertir_html_texto(contidos_A[materia][opcions.SECCIONS[s]]), ano_a)
+			texto_B = comparar.eliminar_ano(comparar.convertir_html_texto(contidos_B[materia][opcions.SECCIONS[s]]), ano_b)
 			delta = comparar.comparar_a_lista(texto_A, texto_B)
-			texto_seccion = f'<h2 id="{materia}_{opcions.SECCIONS[i]}">{opcions.SECCIONS[i]}</h2><table><tr><th>{ano_a}</th><th>{ano_b}</th></tr>'
 			delta_agrupado = comparar.agrupar_comparacion(delta)
+
+			# Xerando DOM para a sección
+			# # Táboa
+			texto_seccion = paxina.new_tag('table')
+			# # Cabeceira
+			texto_seccion.append(paxina.new_tag('tr'))
+			texto = paxina.new_tag('th')
+			texto.string = f'{ano_a}'
+			texto_seccion.tr.append(texto)
+			texto = paxina.new_tag('th')
+			texto.string = f'{ano_b}'
+			texto_seccion.tr.append(texto)
+			# # Filas
 			for grupo in delta_agrupado:
 				for i in range(len(grupo[0])):
+					if len(grupo[0][i]) == 0 and len(grupo[1][i]) == 0:
+						continue
 					engadir_materia = True
 					engadir_seccion = True
-					texto_seccion += f'<tr><td>{color(grupo[0][i])}</td><td>{color(grupo[1][i])}</td></tr>'
-			texto_seccion += '</table>'
+					comparacion = paxina.new_tag('tr')
+					# # # Columna antes
+					td_A = paxina.new_tag('td')
+					if len(grupo[0][i]) > 0:
+						td_A.append(color(grupo[0][i]))
+					# # # Columna despois
+					td_B = paxina.new_tag('td')
+					if len(grupo[1][i]) > 0:
+						td_B.append(color(grupo[1][i]))
+					comparacion.append(td_A)
+					comparacion.append(td_B)
+					texto_seccion.append(comparacion)
 			if engadir_seccion:
-				texto_materia += texto_seccion
+				# # Cabeceira
+				cabeceira = paxina.new_tag('h2', id=f'{materia}_{opcions.SECCIONS[s]}')
+				cabeceira.string = f'{opcions.SECCIONS[s]}'
+				texto_materia.append(cabeceira)
+				texto_materia.append(texto_seccion)
 		if engadir_materia:
-			paxina += f'{texto_materia}'
-	paxina += '</body></html>'
-	return paxina
+			paxina.html.body.append(texto_materia)
+	return str(paxina)
 
 
 if __name__ == '__main__':
