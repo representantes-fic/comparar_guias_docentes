@@ -90,7 +90,7 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 5:
-		print('./main.py <código materia> <ano anterior> <ano seguinte> [ficheiro de saida]')
+		print('./main.py <código materia> <ano anterior> <ano seguinte> <idioma> [ficheiro de saida]')
 		exit(0)
 	else:
 		cod_materia = sys.argv[1]
