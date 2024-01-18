@@ -75,12 +75,12 @@ class ServidorHTTP(BaseHTTPRequestHandler):
 					idioma = parametros['idioma']
 					paxina = obter_paxina(materia, ano_a, ano_b, idioma)
 					self.send_response(200)
-					self.send_header('Content-Type', 'application/xhtml+xml')
+					self.send_header('Content-Type', 'text/html')
 					self.end_headers()
 					self.wfile.write(str.encode(paxina))
 				except (KeyError, IndexError):
 					self.send_response(200)
-					self.send_header('Content-Type', 'application/xhtml+xml')
+					self.send_header('Content-Type', 'text/html')
 					self.end_headers()
 					with open(opcions.INDICE, 'r') as index:
 						self.wfile.write(str.encode(index.read()))
