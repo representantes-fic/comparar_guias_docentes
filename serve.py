@@ -9,9 +9,9 @@ import ipaddress
 import logging
 import re
 import os
-from threading import Lock
+from threading import Lock, Event
 
-descargas_en_proceso = []
+descargas_en_proceso = {}
 mutex = Lock()
 
 
@@ -26,8 +26,10 @@ def obter_paxina(materia: str, ano_a: str, ano_b: str, idioma: str):
 		descargar = False
 		paxina = None
 		with mutex:
-			if ficheiro not in descargas_en_proceso:
-				descargas_en_proceso.append(ficheiro)
+			try:
+				evento = descargas_en_proceso[ficheiro]
+			except KeyError:
+				descargas_en_proceso[ficheiro] = Event()
 				descargar = True
 		if descargar:
 			logging.info(f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, descargando')
@@ -35,12 +37,11 @@ def obter_paxina(materia: str, ano_a: str, ano_b: str, idioma: str):
 			with open(ficheiro, 'w') as saida:
 				saida.write(paxina)
 			with mutex:
-				descargas_en_proceso.remove(ficheiro)
+				descargas_en_proceso[ficheiro].set()
+				del descargas_en_proceso[ficheiro]
 		else:
-			logging.info(
-				f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, agardando a descarga')
-			while ficheiro in descargas_en_proceso:
-				pass
+			logging.info(f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, agardando a descarga')
+			evento.wait()
 			with open(ficheiro, 'r') as saida:
 				paxina = saida.read()
 		return paxina
@@ -84,6 +85,8 @@ class ServidorHTTP(BaseHTTPRequestHandler):
 					self.end_headers()
 					with open(opcions.INDICE, 'r') as index:
 						self.wfile.write(str.encode(index.read()))
+				except BrokenPipeError as e:
+					raise e
 				except Exception as e:
 					self.send_error(500)
 					logging.exception(e)
