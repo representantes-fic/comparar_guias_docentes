@@ -14,8 +14,8 @@ def xerar_url_materias(
 	#   cat é galego
 	# materia indica se se vai descargar a páxina da materia (True) ou a listaxe
 	#  de materias (False)
-	centro = re.compile('([0-9]+)G.*').search(codigo).group(1)
-	cod_materia = re.compile('([0-9]+G[0-9][0-9]).*')\
+	centro = re.compile('([0-9][0-9][0-9])[0-9G].*').search(codigo).group(1)
+	cod_materia = re.compile('([0-9][0-9][0-9][0-9G][0-9][0-9]).*')\
 		.search(codigo).group(1) if materia else codigo
 	url = f'https://guiadocente.udc.es/guia_docent/index.php?centre={centro}&ensenyament={cod_materia}'
 	if ano is not None:
@@ -60,7 +60,7 @@ def lista_materias(codigo_titulacion, ano, idioma):
 	pax = descargar_paxina(xerar_url_materias(codigo_titulacion, False, ano, idioma))
 	# Buscar na páxina o <div> #contingut, e dentro del as etiquetas <a> cuxa URL
 	# conteña o parametro assignatura
-	regex = re.compile("&assignatura=([0-9]+G[0-9]+)")
+	regex = re.compile("&assignatura=([0-9][0-9][0-9][0-9G][0-9]+)")
 	parser = BeautifulSoup(pax, 'html.parser')
 	# Nome da titulación
 	nome_titulacion = parser.find_all("a", class_='subapartat_actiu')[0]
