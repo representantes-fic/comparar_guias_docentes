@@ -3,6 +3,8 @@
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import opcions
 import main
+from descargar import DescargaFallou
+
 import sys
 import socket
 import ipaddress
@@ -33,7 +35,13 @@ def obter_paxina(materia: str, ano_a: str, ano_b: str, idioma: str):
 				descargar = True
 		if descargar:
 			logging.info(f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, descargando')
-			paxina = main.xerar_paxina_html(materia, ano_a, ano_b, idioma)
+			try:
+				paxina = main.xerar_paxina_html(materia, ano_a, ano_b, idioma)
+			except DescargaFallou as e:
+				logging.warn(f'A páxina devolveu {e.valor}')
+				with mutex:
+					descargas_en_proceso[ficheiro].set()
+				raise e
 			with open(ficheiro, 'w') as saida:
 				saida.write(paxina)
 			with mutex:
@@ -42,8 +50,11 @@ def obter_paxina(materia: str, ano_a: str, ano_b: str, idioma: str):
 		else:
 			logging.info(f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, agardando a descarga')
 			evento.wait()
-			with open(ficheiro, 'r') as saida:
-				paxina = saida.read()
+			try:
+				with open(ficheiro, 'r') as saida:
+					paxina = saida.read()
+			except FileNotFoundError:
+				raise DescargaFallou(404)
 		return paxina
 
 
@@ -74,17 +85,30 @@ class ServidorHTTP(BaseHTTPRequestHandler):
 					ano_a = parametros['anterior']
 					ano_b = parametros['seguinte']
 					idioma = parametros['idioma']
-					paxina = obter_paxina(materia, ano_a, ano_b, idioma)
-					self.send_response(200)
-					self.send_header('Content-Type', 'text/html')
-					self.end_headers()
-					self.wfile.write(str.encode(paxina))
+					try:
+						paxina = obter_paxina(materia, ano_a, ano_b, idioma)
+						self.send_response(200)
+						self.send_header('Content-Type', 'text/html')
+						self.end_headers()
+						self.wfile.write(str.encode(paxina))
+					except DescargaFallou as e:
+						if e.valor == 302 or e.valor == 404:
+							self.send_response(404)
+							self.send_header('Content-Type', 'text/html')
+							self.end_headers()
+							with open('www/notfound.html', 'rb') as f:
+								self.wfile.write(f.read())
+						else:
+							raise Exception('A descarga fallou')
+					except Exception as e:
+						raise e
+
 				except (KeyError, IndexError):
 					self.send_response(200)
 					self.send_header('Content-Type', 'text/html')
 					self.end_headers()
-					with open(opcions.INDICE, 'r') as index:
-						self.wfile.write(str.encode(index.read()))
+					with open(opcions.INDICE, 'rb') as index:
+						self.wfile.write(index.read())
 				except BrokenPipeError as e:
 					raise e
 				except Exception as e:

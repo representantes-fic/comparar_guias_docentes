@@ -7,6 +7,17 @@ import os
 import opcions
 
 
+class DescargaFallou(Exception):
+	valor: int = 200
+
+	def __init__(self, valor: int, mensaxe: str = None):
+		if mensaxe is not None:
+			super(mensaxe)
+		else:
+			super()
+		self.valor = valor
+
+
 def xerar_url_materias(
 	codigo: str, materia: bool, ano: str = None, idioma: str = None) -> str:
 	# ano = 20XX_YY
@@ -30,9 +41,10 @@ def xerar_url_materias(
 
 
 def descargar_paxina(url: str) -> str:
-	r = requests.get(url)
+	r = requests.get(url, allow_redirects=False)
+	logging.info(url)
 	if r.status_code != 200:
-		raise Exception()
+		raise DescargaFallou(r.status_code)
 	return r.text
 
 
