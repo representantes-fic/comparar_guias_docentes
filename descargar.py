@@ -43,6 +43,7 @@ def xerar_url_materias(
 def descargar_paxina(url: str) -> str:
 	r = requests.get(url, allow_redirects=False)
 	if r.status_code != 200:
+		logging.debug(url)
 		raise DescargaFallou(r.status_code)
 	return r.text
 

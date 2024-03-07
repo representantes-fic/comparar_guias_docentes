@@ -31,8 +31,12 @@ def descargar_seccions(cod_materia: str, ano: str, idioma: str) -> dict:
 	}
 
 	for i in range(1, 10):
-		contido = sacar_contido_seccion(
-			descargar.descargar_paxina_materia(cod_materia, i, ano, idioma))
+		try:
+			contido = sacar_contido_seccion(
+				descargar.descargar_paxina_materia(cod_materia, i, ano, idioma))
+		except descargar.DescargaFallou as e:
+			if e.valor == 302:
+				contido = ""
 		contidos[opcions.SECCIONS[i]] = contido
 	return contidos
 
