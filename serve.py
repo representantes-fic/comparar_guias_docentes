@@ -17,9 +17,9 @@ descargas_en_proceso = {}
 mutex = Lock()
 
 
-def obter_paxina(materia: str, ano_a: str, ano_b: str, idioma: str):
-	ficheiro = f'{opcions.SAIDA}/{ano_a}a{ano_a}A{materia}I{idioma}.htm'
-	logging.info(f'Devolvendo {ano_a}a{ano_a}A{materia}I{idioma}')
+def obter_paxina(titulacion: str, ano_a: str, ano_b: str, idioma: str):
+	ficheiro = f'{opcions.SAIDA}/{ano_a}a{ano_a}A{titulacion}I{idioma}.htm'
+	logging.info(f'Devolvendo {ano_a}a{ano_a}A{titulacion}I{idioma}')
 	try:
 		with open(ficheiro, 'r') as f:
 			return f.read()
@@ -34,9 +34,9 @@ def obter_paxina(materia: str, ano_a: str, ano_b: str, idioma: str):
 				descargas_en_proceso[ficheiro] = Event()
 				descargar = True
 		if descargar:
-			logging.info(f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, descargando')
+			logging.info(f'{ano_a}a{ano_a}A{titulacion}I{idioma} non existe, descargando')
 			try:
-				paxina = main.xerar_paxina_html(materia, ano_a, ano_b, idioma)
+				paxina = main.xerar_paxina_html(titulacion, ano_a, ano_b, idioma)
 			except DescargaFallou as e:
 				logging.warn(f'A páxina devolveu {e.valor}')
 				with mutex:
@@ -48,7 +48,7 @@ def obter_paxina(materia: str, ano_a: str, ano_b: str, idioma: str):
 				descargas_en_proceso[ficheiro].set()
 				del descargas_en_proceso[ficheiro]
 		else:
-			logging.info(f'{ano_a}a{ano_a}A{materia}I{idioma} non existe, agardando a descarga')
+			logging.info(f'{ano_a}a{ano_a}A{titulacion}I{idioma} non existe, agardando a descarga')
 			evento.wait()
 			try:
 				with open(ficheiro, 'r') as saida:
@@ -81,12 +81,12 @@ class ServidorHTTP(BaseHTTPRequestHandler):
 			else:
 				try:
 					parametros = self.param_peticion()
-					materia = parametros['materia']
+					titulacion = parametros['titulacion']
 					ano_a = parametros['anterior']
 					ano_b = parametros['seguinte']
 					idioma = parametros['idioma']
 					try:
-						paxina = obter_paxina(materia, ano_a, ano_b, idioma)
+						paxina = obter_paxina(titulacion, ano_a, ano_b, idioma)
 						self.send_response(200)
 						self.send_header('Content-Type', 'text/html')
 						self.end_headers()

@@ -109,15 +109,15 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 5:
-		print('./main.py <código materia> <ano anterior> <ano seguinte> <idioma> [ficheiro de saida]')
+		print('./main.py <código titulación> <ano anterior> <ano seguinte> <idioma> [ficheiro de saida]')
 		exit(0)
 	else:
-		cod_materia = sys.argv[1]
+		cod_titulacion = sys.argv[1]
 		ano_a = sys.argv[2]
 		ano_b = sys.argv[3]
 		idioma = sys.argv[4]
 		ficheiro = sys.argv[5] if len(sys.argv) >= 6 else None
-		paxina = xerar_paxina_html(cod_materia, ano_a, ano_b, idioma)
+		paxina = xerar_paxina_html(cod_titulacion, ano_a, ano_b, idioma)
 
 		if ficheiro is None:
 			print(paxina)
