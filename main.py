@@ -49,6 +49,11 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 	titulo.string = f'{titulacion} de {ano_a} a {ano_b}, {idioma}'
 	paxina.html.head.append(titulo)
 
+	indice_contidos = paxina.new_tag('nav', id='top')
+	indice_contidos.append(paxina.new_tag('h1'))
+	indice_contidos.h1.string = 'Índice'
+	indice_contidos.append(paxina.new_tag('ol'))
+
 	for materia in lista_materias:
 		logging.info(f'Procesando {materia}')
 		# Se non hai seccións modificadas, non se engade a materia
@@ -57,6 +62,12 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 		cabeceira = texto_materia.new_tag('h1', id=materia)
 		cabeceira.string = f'{materia}: {nomes[materia]}'
 		texto_materia.append(cabeceira)
+		# Creando entradas no índice
+		indice_materia = paxina.new_tag('li')
+		indice_materia.append(paxina.new_tag('a', href=f'#{materia}'))
+		indice_materia.a.string = f'{materia}: {nomes[materia]}'
+		indice_materia.append(paxina.new_tag('ol'))
+
 		for s in range(1, 10):
 			# Obtendo datos
 			# Se non hai cambios, non se engade a sección
@@ -97,13 +108,21 @@ def xerar_paxina_html(codigo: str, ano_a: str, ano_b: str, idioma: str):
 					comparacion.append(td_B)
 					texto_seccion.append(comparacion)
 			if engadir_seccion:
+				id_str = f'{materia}_{opcions.SECCIONS[s]}'
 				# # Cabeceira
-				cabeceira = paxina.new_tag('h2', id=f'{materia}_{opcions.SECCIONS[s]}')
+				cabeceira = paxina.new_tag('h2', id=id_str)
 				cabeceira.string = f'{opcions.SECCIONS[s]}'
 				texto_materia.append(cabeceira)
 				texto_materia.append(texto_seccion)
+				# # Índice
+				entrada = paxina.new_tag('li')
+				entrada.append(paxina.new_tag('a', href=id_str))
+				entrada.a.string = f'{opcions.SECCIONS[s]}'
+				indice_materia.ol.append(entrada)
 		if engadir_materia:
 			paxina.html.body.append(texto_materia)
+			indice_contidos.ol.append(indice_materia)
+		paxina.html.body.insert(0, indice_contidos)
 	return str(paxina)
 
 
